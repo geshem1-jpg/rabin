@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>מותר לחלוק, אסור להסית</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Assistant:wght@400;600;700&display=swap">
+<script>
+/* ===================== הגדרות ===================== */
+const CONFIG = {
+  FORM_ID: "1FAIpQLSeeBw-VQSq77lgP8h1OJ9Duniw67jWC8UJLd-pVp2NeU7vSdQ",
+  ENTRY_ID: "entry.2015587647",
+  SHEET_ID: "1mlvAorshJpgisejM8m1bh2NZOSx269w5PqELMjCPWr4"
+};
+</script>
+<style>
+/* Layout: one station at a time, a narrow reading column, progress strip on top. */
+:root{
+  --ink:#1b2236; --muted:#5b6478; --paper:#f6f4ef; --card:#ffffff; --line:#dcd8cf;
+  --flame:#c7791e; --flame-soft:#f3e3cc; --navy:#22305a; --on-navy:#f6f4ef;
+  --ok:#2f7a4f; --ok-soft:#dcefe3; --bad:#b23a3a; --bad-soft:#f6dddd; --mid:#8a6a12; --mid-soft:#f4ecd0;
+  --chat:#e7f0e3; --chat-me:#d6e6fb;
+  --display:"Frank Ruhl Libre", "David", Georgia, serif;
+  --body:"Assistant", "Arial Hebrew", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  --ink:#eceae4; --muted:#a3aabb; --paper:#121726; --card:#1b2236; --line:#2e3752;
+  --flame:#e6a04a; --flame-soft:#3a2d1a; --navy:#9fb2e6; --on-navy:#121726;
+  --ok:#7fcf9f; --ok-soft:#1d3528; --bad:#f09a9a; --bad-soft:#3f2222; --mid:#e2c565; --mid-soft:#3a331a;
+  --chat:#1f3326; --chat-me:#1e2e4a;
+  color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.55;
+  padding:env(safe-area-inset-top,0) max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 24px) max(16px,env(safe-area-inset-left,0px))}
+main{max-width:34rem;margin:0 auto}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:2.3rem;font-weight:900}
+h2{font-size:1.65rem;font-weight:700}
+h3{font-size:1.15rem}
+p{margin:0}
+.eyebrow{font-size:.85rem;letter-spacing:.06em;color:var(--flame);font-weight:700}
+.stack{display:flex;flex-direction:column;gap:1rem}
+section{padding-block:1.25rem 1rem}
+.progress{display:flex;gap:6px;padding-block:14px 4px}
+.progress span{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.progress span.on{background:var(--flame)}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:.85rem 1.1rem;min-height:48px}
+button:disabled{cursor:default;opacity:.55}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--flame);outline-offset:2px}
+.primary{background:var(--navy);color:var(--on-navy);font-weight:700;width:100%}
+.candle{width:46px;height:64px;margin-bottom:.25rem}
+.lead{font-size:1.1rem;color:var(--muted)}
+.muted{color:var(--muted)}
+.levels{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.levels button{background:var(--card);border:1.5px solid var(--line);color:var(--ink);padding:1.2rem .5rem;font-family:var(--display);font-size:1.6rem;font-weight:700}
+.levels small{display:block;font-family:var(--body);font-size:.85rem;color:var(--muted);font-weight:400}
+.note{background:var(--flame-soft);border-radius:12px;padding:1rem;font-weight:600}
+.box{border:1.5px solid var(--line);border-radius:12px;padding:1rem;display:flex;flex-direction:column;gap:.5rem}
+/* timeline */
+.tl{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line);display:flex;flex-direction:column;gap:1.1rem}
+.tl li{position:relative;padding-inline-start:1.1rem}
+.tl li::before{content:"";position:absolute;inset-inline-start:-7px;top:.45rem;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--muted)}
+.tl li.key::before{background:var(--flame);border-color:var(--flame)}
+.tl .date{font-weight:700;font-variant-numeric:tabular-nums;color:var(--navy);font-size:.95rem}
+.tl li.key .date{color:var(--flame)}
+blockquote{margin:0;padding:1.1rem 1.2rem;border-inline-start:4px solid var(--flame);background:var(--card);border-radius:4px 12px 12px 4px}
+blockquote p{font-family:var(--display);font-size:1.6rem;font-weight:700;line-height:1.25}
+blockquote footer{font-size:.9rem;color:var(--muted);margin-top:.4rem}
+/* choices (shared) */
+.choices{display:flex;flex-direction:column;gap:.5rem}
+.choices button{background:var(--card);border:1.5px solid var(--line);color:var(--ink);text-align:start;line-height:1.4;font-weight:600}
+.choices button.picked-good{border-color:var(--ok);background:var(--ok-soft)}
+.choices button.picked-bad{border-color:var(--bad);background:var(--bad-soft)}
+.choices button.picked-mid{border-color:var(--mid);background:var(--mid-soft)}
+.choices button.picked{border-color:var(--navy);border-width:2px}
+.feedback{border-radius:12px;padding:1rem}
+.feedback.good{background:var(--ok-soft)}.feedback.bad{background:var(--bad-soft)}.feedback.mid{background:var(--mid-soft)}
+.feedback b{display:block;margin-bottom:.2rem}
+/* sorting */
+.counter{color:var(--muted);font-size:.9rem;font-variant-numeric:tabular-nums}
+.statement{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:1.25rem;font-family:var(--display);font-size:1.35rem;line-height:1.4;min-height:6rem;display:flex;align-items:center}
+.bins{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.bins button{background:var(--card);border:1.5px solid var(--line);color:var(--ink);font-weight:700;padding:.75rem .25rem;font-size:1rem}
+.bins button.b-ok{border-color:var(--ok)}.bins button.b-bad{border-color:var(--bad)}.bins button.b-mid{border-color:var(--mid)}
+.tag{display:inline-block;font-size:.85rem;font-weight:700;border-radius:999px;padding:.1rem .6rem;margin-inline-start:.25rem}
+.t-ok{background:var(--ok-soft);color:var(--ok)}.t-bad{background:var(--bad-soft);color:var(--bad)}.t-mid{background:var(--mid-soft);color:var(--mid)}
+/* rephrase */
+.rules{margin:0;padding-inline-start:1.3rem;display:flex;flex-direction:column;gap:.2rem}
+.hate{background:var(--bad-soft);border-radius:12px;padding:1rem;font-family:var(--display);font-size:1.3rem;font-weight:700;line-height:1.35}
+textarea{width:100%;min-height:6rem;font:inherit;font-size:1.05rem;padding:.8rem 1rem;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);resize:vertical}
+.checks{display:flex;flex-direction:column;gap:.4rem}
+.checks label{display:flex;gap:.6rem;align-items:flex-start;cursor:pointer}
+.checks input{width:22px;height:22px;flex:none;margin-top:.2rem;accent-color:var(--ok)}
+.model{background:var(--ok-soft);border-radius:12px;padding:1rem}
+.model b{display:block;margin-bottom:.2rem}
+.warn{color:var(--bad);font-weight:600}
+/* ladder */
+.ladder{display:flex;flex-direction:column-reverse;gap:.5rem}
+.rung{display:flex;gap:.75rem;align-items:flex-start;border-radius:12px;padding:.75rem 1rem;background:var(--card);border:1.5px solid var(--line);animation:rise .35s ease}
+.rung .n{font-family:var(--display);font-weight:900;font-size:1.4rem;color:var(--flame);min-width:1.2rem}
+.rung b{display:block}
+.rung small{color:var(--muted);display:block;font-size:.92rem}
+.pool{display:flex;flex-wrap:wrap;gap:.5rem}
+.pool button{background:var(--card);border:1.5px dashed var(--muted);color:var(--ink);font-weight:700}
+.pool button small{display:block;font-weight:400;font-size:.85rem;color:var(--muted)}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(6px)}75%{transform:translateX(-6px)}}
+@keyframes rise{from{opacity:.2;transform:translateY(8px)}}
+/* chat */
+.chat{background:var(--card);border:1.5px solid var(--line);border-radius:16px;overflow:hidden}
+.chat-head{background:var(--navy);color:var(--on-navy);padding:.6rem 1rem;font-weight:700;font-size:.95rem}
+.chat-head small{display:block;font-weight:400;opacity:.8;font-size:.8rem}
+.chat-body{padding:.8rem;display:flex;flex-direction:column;gap:.45rem}
+.bubble{max-width:85%;background:var(--chat);border-radius:4px 14px 14px 14px;padding:.45rem .75rem;align-self:flex-start;animation:rise .3s ease;line-height:1.4}
+.bubble .who{display:block;font-size:.78rem;font-weight:700;color:var(--flame)}
+.bubble.me{align-self:flex-end;background:var(--chat-me);border-radius:14px 4px 14px 14px}
+.bubble.sys{align-self:center;background:transparent;color:var(--muted);font-size:.85rem;text-align:center}
+/* results */
+.bars{display:flex;flex-direction:column;gap:.55rem}
+.bar .lbl{display:flex;justify-content:space-between;gap:.5rem;font-size:.95rem}
+.bar .lbl b{font-variant-numeric:tabular-nums}
+.bar .track{height:12px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:.2rem}
+.bar .fill{height:100%;background:var(--navy);border-radius:6px;transition:width .8s ease}
+.bar.mine .fill{background:var(--flame)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* word */
+.question{font-family:var(--display);font-size:1.7rem;font-weight:700;line-height:1.25}
+input[type=text]{width:100%;font:inherit;font-size:1.3rem;padding:.8rem 1rem;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.hint{font-size:.9rem;color:var(--muted)}
+.msg{min-height:1.5rem;font-weight:600}
+.msg.err{color:var(--bad)}.msg.okm{color:var(--ok)}
+.sent{display:flex;flex-wrap:wrap;gap:.4rem}
+.sent span{background:var(--flame-soft);border-radius:999px;padding:.2rem .8rem;font-weight:700}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<main>
+  <div class="progress" id="progress" hidden><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+  <!-- פתיחה -->
+  <section id="s-start" class="stack">
+    <svg class="candle" viewBox="0 0 46 64" aria-hidden="true">
+      <path d="M23 4c6 8 8 13 8 18a8 8 0 0 1-16 0c0-5 2-10 8-18z" fill="var(--flame)"/>
+      <rect x="11" y="32" width="24" height="30" rx="3" fill="var(--navy)"/>
+    </svg>
+    <p class="eyebrow">יום הזיכרון ליצחק רבין · י"ב בחשוון</p>
+    <h1>מותר לחלוק.<br>אסור להסית.</h1>
+    <p class="lead">שש תחנות קצרות על הגבול בין ויכוח לבין שנאה. בסוף תוסיפו מילה לענן שעל המסך בחדר.</p>
+    <p style="font-weight:700">באיזו שכבה אתם?</p>
+    <div class="levels">
+      <button id="lv-young" data-level="young">ז'–ח'<small>חטיבת ביניים</small></button>
+      <button id="lv-old" data-level="old">ט'–יב'<small>כולל מושגי אזרחות</small></button>
+    </div>
+  </section>
+
+  <!-- 1: מה קרה -->
+  <section id="s-1" class="stack" hidden>
+    <p class="eyebrow">תחנה 1 מתוך 6 · מה קרה?</p>
+    <h2>הרצח לא קרה בחלל ריק</h2>
+    <ol class="tl" id="timeline"></ol>
+    <blockquote>
+      <p>"האלימות היא כרסום יסוד הדמוקרטיה"</p>
+      <footer>יצחק רבין, בנאומו בעצרת, 4 בנובמבר 1995. דקות אחר כך נרצח.</footer>
+    </blockquote>
+    <p style="font-weight:700" id="q1-text"></p>
+    <div class="choices" id="q1"></div>
+    <div class="feedback" id="q1-fb" hidden></div>
+    <button class="primary" data-next="2" id="q1-next" hidden>לתחנה הבאה</button>
+  </section>
+
+  <!-- 2: מיון -->
+  <section id="s-2" class="stack" hidden>
+    <p class="eyebrow">תחנה 2 מתוך 6 · ביקורת או הסתה?</p>
+    <h2>מיינו כל משפט</h2>
+    <p class="counter" id="sort-count"></p>
+    <div class="statement" id="statement"></div>
+    <div class="bins" id="bins">
+      <button class="b-ok" data-bin="ok">ביקורת</button>
+      <button class="b-mid" data-bin="mid">תלוי בהקשר</button>
+      <button class="b-bad" data-bin="bad">הסתה</button>
+    </div>
+    <div class="feedback" id="sort-fb" hidden></div>
+    <button class="primary" id="sort-next" hidden>המשך</button>
+    <div id="sort-end" class="stack" hidden>
+      <p class="note" id="sort-score"></p>
+      <div class="box" id="concept" hidden>
+        <h3>מושגי אזרחות</h3>
+        <p><b>חופש הביטוי</b> הוא זכות יסוד, והוא מגן גם על דעות חריפות ולא פופולריות.</p>
+        <p><b>אבל הוא לא מוחלט.</b> לפי מבחן <b>"ודאות קרובה"</b> (בג"ץ קול העם, 1953) מותר להגביל ביטוי רק כשיש ודאות קרובה שיגרום לפגיעה ממשית בשלום הציבור.</p>
+        <p><b>הסתה לאלימות</b> היא עבירה בחוק העונשין: פרסום שקורא לאלימות או משבח אותה, כשיש אפשרות ממשית שיוביל למעשה אלים.</p>
+      </div>
+      <button class="primary" data-next="3">לתחנה הבאה</button>
+    </div>
+  </section>
+
+  <!-- 3: ניסוח מחדש -->
+  <section id="s-3" class="stack" hidden>
+    <p class="eyebrow">תחנה 3 מתוך 6 · לחלוק בלי לשנוא</p>
+    <h2>אותה דעה, בלי השנאה</h2>
+    <div class="box">
+      <p>אפשר להחזיק בדעה חזקה בלי להסית. ניסוח טוב:</p>
+      <ol class="rules">
+        <li><b>שומר על הדעה.</b> לא מוותרים עליה.</li>
+        <li><b>מבקר רעיון או מעשה,</b> לא את האדם.</li>
+        <li><b>בלי תוויות ובלי איומים</b> ("בוגד", "אפס", "נלמד אותו לקח").</li>
+      </ol>
+    </div>
+    <p class="counter" id="rp-count"></p>
+    <div class="hate" id="rp-hate"></div>
+    <!-- ז'-ח': בחירה -->
+    <div id="rp-young" class="stack" hidden>
+      <p style="font-weight:700">איזה ניסוח שומר על הדעה בלי השנאה?</p>
+      <div class="choices" id="rp-choices"></div>
+      <div class="feedback" id="rp-fb" hidden></div>
+    </div>
+    <!-- ט'-יב': כתיבה -->
+    <div id="rp-old" class="stack" hidden>
+      <label for="rp-text" style="font-weight:700">נסחו מחדש בעצמכם:</label>
+      <textarea id="rp-text" placeholder="אני חושב/ת ש... כי..."></textarea>
+      <p class="warn" id="rp-warn" hidden></p>
+      <button class="primary" id="rp-check">בדקו את הניסוח שלי</button>
+      <div id="rp-self" class="stack" hidden>
+        <p style="font-weight:700">בדקו את עצמכם:</p>
+        <div class="checks">
+          <label><input type="checkbox" id="c1"> הדעה המקורית עדיין נמצאת בניסוח שלי</label>
+          <label><input type="checkbox" id="c2"> אני מבקר/ת רעיון או מעשה, לא אדם</label>
+          <label><input type="checkbox" id="c3"> אין בניסוח תוויות, הכללות או איומים</label>
+        </div>
+        <div class="model"><b>ניסוח אפשרי אחד:</b><span id="rp-model"></span></div>
+      </div>
+    </div>
+    <button class="primary" id="rp-next" hidden>המשך</button>
+  </section>
+
+  <!-- 4: המדרגות -->
+  <section id="s-4" class="stack" hidden>
+    <p class="eyebrow">תחנה 4 מתוך 6 · המדרגות</p>
+    <h2>איך מילים הופכות לאלימות?</h2>
+    <div class="box" id="glossary" hidden>
+      <h3>שתי מילים חשובות</h3>
+      <p><b>דה-לגיטימציה</b>: "לגיטימי" פירושו מותר, מקובל, כשר. דה-לגיטימציה היא כשמנסים לשכנע שלמישהו <b>אין זכות</b>: אין לו זכות לדבר, להשפיע או להיות חלק מאיתנו. למשל: "אתה בכלל לא שייך לפה".</p>
+      <p><b>דמוניזציה</b>: מהמילה "דמון", כלומר שד. דמוניזציה היא כשמציגים מישהו <b>כשד</b>: רע מוחלט, מסוכן, כמעט לא בן אדם. למשל: "הוא אויב, הוא יהרוס את כולנו".</p>
+    </div>
+    <p>לחצו על השלבים לפי הסדר: מהקל ביותר אל החמור ביותר.</p>
+    <div class="ladder" id="ladder"></div>
+    <div class="pool" id="pool"></div>
+    <div id="ladder-end" class="stack" hidden>
+      <p class="note">כל מדרגה מקלה על הבאה. כשמתרגלים ללעג, ההשפלה כבר לא מזעזעת. כשמישהו הוא "אויב", כבר קל יותר לפגוע בו.</p>
+      <button class="primary" data-next="5">לתחנה הבאה</button>
+    </div>
+  </section>
+
+  <!-- 5א: ז'-ח' וואטסאפ -->
+  <section id="s-5y" class="stack" hidden>
+    <p class="eyebrow">תחנה 5 מתוך 6 · מה אני עושה?</p>
+    <h2>הקבוצה של השכבה</h2>
+    <p class="muted">אתם חברים בקבוצת הוואטסאפ של השכבה. השיחה מתחילה להחריף. בכל שלב בחרו מה אתם עושים.</p>
+    <div class="chat">
+      <div class="chat-head">שכבה ח' 🎒<small>143 משתתפים</small></div>
+      <div class="chat-body" id="chat"></div>
+    </div>
+    <div class="choices" id="wa-choices"></div>
+    <div class="feedback" id="wa-fb" hidden></div>
+    <button class="primary" id="wa-next" hidden>המשך</button>
+    <div id="wa-end" class="stack" hidden>
+      <p class="note">שימו לב: השיחה עלתה בדיוק במדרגות מהתחנה הקודמת. לעג, השפלה, "הוא לא אחד מאיתנו", ובסוף איום. בכל מדרגה הייתה לכם בחירה, וכל מדרגה שבה מישהו עצר מקשה על הבאה.</p>
+      <button class="primary" data-next="6">לתחנה האחרונה</button>
+    </div>
+  </section>
+
+  <!-- 5ב: ט'-יב' דילמות -->
+  <section id="s-5o" class="stack" hidden>
+    <p class="eyebrow">תחנה 5 מתוך 6 · איפה עובר הגבול?</p>
+    <h2>דילמות בלי תשובה אחת</h2>
+    <p class="counter" id="dl-count"></p>
+    <div class="statement" id="dl-text" style="font-size:1.15rem"></div>
+    <div class="choices" id="dl-choices"></div>
+    <div id="dl-res" class="stack" hidden>
+      <p style="font-weight:700" id="dl-res-title">כך ענו עד עכשיו תלמידי בית הספר:</p>
+      <div class="bars" id="dl-bars"></div>
+      <p class="hint" id="dl-n"></p>
+      <div class="box"><p id="dl-note"></p></div>
+    </div>
+    <button class="primary" id="dl-next" hidden>המשך</button>
+    <div id="dl-end" class="stack" hidden>
+      <p class="note">גם בבית הספר שלנו אנשים חלוקים בשאלות האלה. זו בדיוק הנקודה: אפשר לחשוב אחרת, לנמק, ולהמשיך לחיות יחד. ההכרעה במחלוקת נעשית בשכנוע ובהצבעה, לא בכוח.</p>
+      <button class="primary" data-next="6">לתחנה האחרונה</button>
+    </div>
+  </section>
+
+  <!-- 6: ענן -->
+  <section id="s-6" class="stack" hidden>
+    <p class="eyebrow">תחנה 6 מתוך 6 · ענן המילים</p>
+    <p class="question">מה צריך כדי שנוכל להתווכח בלי לשנוא?</p>
+    <p class="hint">מילה אחת או שתיים. אפשר לשלוח עד 2 תשובות. המילה תופיע על המסך בחדר.</p>
+    <label for="word" class="sr">המילה שלי</label>
+    <input type="text" id="word" maxlength="20" autocomplete="off" placeholder="למשל: הקשבה">
+    <button class="primary" id="send">שליחה למסך</button>
+    <p class="msg" id="msg" role="status"></p>
+    <div class="sent" id="sent"></div>
+    <div id="done" class="stack" hidden>
+      <p class="note">תודה. הסתכלו על המסך: המילה שלכם כבר בענן.</p>
+    </div>
+  </section>
+</main>
+
+<script src="filter.js"></script>
+<script>
+const DATA = {
+  timeline: {
+    young: [
+      ["1993","ישראל חותמת על הסכמי אוסלו עם אש\"ף. חלק מהציבור תומך, חלק מתנגד בתוקף. מחלוקת כזאת היא חלק טבעי מדמוקרטיה."],
+      ["1994–1995","ההפגנות נגד ההסכמים מתחזקות. לצד ביקורת לגיטימית מופיעים שלטים וקריאות כמו \"בוגד\" ו\"רוצח\", ותמונות ערוכות של רבין במדים נאציים."],
+      ["4 בנובמבר 1995","עצרת \"כן לשלום, לא לאלימות\" בכיכר מלכי ישראל בתל אביב. בסופה, ראש הממשלה יצחק רבין נורה בידי מתנקש ונרצח.", true],
+      ["אחרי הרצח","הכיכר נקראת כיכר רבין. מאז, ב-י\"ב בחשוון, מציינים בישראל את יום הזיכרון ליצחק רבין."]
+    ],
+    old: [
+      ["1993","הסכמי אוסלו נחתמים. הציבור חלוק עמוקות: מצד אחד תקווה לשלום, מצד שני חשש ביטחוני והתנגדות אידאולוגית. שתי העמדות לגיטימיות בדמוקרטיה."],
+      ["1994–1995","פיגועים קשים מגבירים את הכעס. בהפגנות ובשיח הציבורי מופיעים כינויים כמו \"בוגד\" ו\"רוצח\", ותמונות ערוכות של רבין במדי קצין נאצי. הוויכוח הלגיטימי מתערבב בהסתה."],
+      ["4 בנובמבר 1995","בסוף עצרת \"כן לשלום, לא לאלימות\" בכיכר מלכי ישראל, ראש הממשלה יצחק רבין נורה בידי מתנקש יהודי ונרצח. זה הרצח הפוליטי הראשון של ראש ממשלה בישראל.", true],
+      ["1997","הכנסת מחוקקת את חוק יום הזיכרון ליצחק רבין, שקובע את י\"ב בחשוון כיום זיכרון ממלכתי ומחייב פעילות חינוכית בבתי הספר."]
+    ]
+  },
+  q1: {
+    young: {
+      q: "למה רבין אמר שאלימות פוגעת דווקא בדמוקרטיה?",
+      opts: [
+        ["כי בדמוקרטיה מכריעים מחלוקת בהצבעה ובשכנוע. אלימות מחליפה את זה בכוח.","good","בדיוק. בדמוקרטיה כל אחד יכול לשכנע ולהצביע. מי שמשתמש באלימות לוקח לעצמו את ההחלטה במקום כולם."],
+        ["כי אלימות אסורה בחוק.","mid","נכון שהיא אסורה, אבל זה נכון גם במדינות שאינן דמוקרטיות. רבין דיבר על משהו עמוק יותר: הדרך שבה מכריעים מחלוקות."],
+        ["כי ראש ממשלה לא צריך לשמוע ביקורת.","bad","להפך. בעצרת עצמה רבין דיבר על הזכות לחלוק. ביקורת היא חלק חשוב מדמוקרטיה. אלימות היא לא."]
+      ]
+    },
+    old: {
+      q: "למה דווקא \"יסוד הדמוקרטיה\"? מה האלימות הפוליטית מכרסמת?",
+      opts: [
+        ["את העיקרון שמחלוקות מוכרעות בשכנוע ובהצבעה, ולא בכוח של יחיד.","good","נכון. רצח פוליטי מנסה לשנות את תוצאת ההכרעה הדמוקרטית בכוח. מתנקש אחד לוקח לעצמו את ההחלטה של מיליונים."],
+        ["את שלטון החוק, כי אלימות היא עבירה.","mid","גם זה נכון, אבל עבירות פוגעות בשלטון החוק בכל מדינה. אלימות פוליטית פוגעת במשהו נוסף: בהכרעת הרוב ובזכות להשתתף בוויכוח בלי פחד."],
+        ["את הביטחון האישי של ראשי ממשלה.","bad","זה חלק מהנזק, אבל רבין דיבר על הדמוקרטיה כולה. כשאנשים מפחדים להביע דעה, כל הציבור מאבד את הקול שלו."]
+      ]
+    }
+  },
+  sort: {
+    young: [
+      ["לדעתי ההחלטה לבטל את הטיול לא הוגנת. בואו נבקש פגישה עם המנהלת.","ok","מביע התנגדות להחלטה ופועל בדרך מכבדת. כך נראה ויכוח בריא."],
+      ["מי שמצביע לנציג השני במועצת התלמידים הוא בוגד בשכבה.","bad","הופך מחלוקת רגילה ל\"בגידה\" ומסמן את מי שחושב אחרת כאויב."],
+      ["אחרי השיעור נלמד אותו לקח.","mid","זו יכולה להיות בדיחה ויכול להיות איום. הטון, הקשר בין האנשים ומה שקרה לפני כן קובעים."],
+      ["צריך לסלק אותו מהכיתה. הוא לא אחד מאיתנו.","bad","\"לא אחד מאיתנו\" מוציא אדם מהקבוצה ומצדיק לפגוע בו."]
+    ],
+    old: [
+      ["המדיניות של הממשלה בנושא מסוכנת. נפגין נגדה מול הכנסת.","ok","הפגנה ומחאה הן מימוש של חופש הביטוי וחופש ההתאספות."],
+      ["מי שתומך בהסכם הזה הוא בוגד, ובוגדים יודעים מה דינם.","bad","דה-לגיטימציה (\"בוגד\") יחד עם רמז מאיים. זה בדיוק השיח שקדם לרצח רבין."],
+      ["השר הזה שקרן, ואני אוכיח את זה עם נתונים.","mid","ביקורת חריפה על איש ציבור מותרת. אבל אם הטענה לא נכונה, זו עלולה להיות לשון הרע."],
+      ["תמונה ערוכה של ראש העיר במדים נאציים, בקבוצה של 5,000 חברים.","bad","דמוניזציה: הופכת יריב פוליטי לרשע מוחלט, שכאילו מותר לפגוע בו."]
+    ]
+  },
+  rephraseYoung: [
+    { hate: "מי שבעד לבטל את המסיבה הוא בוגד בשכבה.",
+      opts: [
+        ["אני חושב שביטול המסיבה הוא טעות, כי חיכינו לה כל השנה.","good","מצוין. הדעה נשארה (\"זו טעות\"), יש נימוק, ואין עלבון."],
+        ["בעצם זה לא משנה, שיעשו מה שהם רוצים.","mid","השנאה יצאה, אבל גם הדעה שלכם נעלמה. לא צריך לוותר על הדעה. מותר לחלוק!"],
+        ["מי שבעד לבטל פשוט לא מבין כלום.","bad","עדיין תוקף את האנשים במקום את הרעיון."]
+      ]},
+    { hate: "המורה הזה שונא אותנו. צריך לעשות לו את המוות.",
+      opts: [
+        ["המורה הזה גרוע, כולם צריכים לשנוא אותו.","bad","זה מעביר את השנאה הלאה ומגייס אחרים נגדו."],
+        ["אני מרגיש שהמבחן היה לא הוגן, ואבקש לדבר עם המורה.","good","מצוין. אומרים מה מפריע (המבחן) ופונים ישירות, בלי איומים."],
+        ["שיהיה, אין טעם להגיד משהו.","mid","יצא האיום, אבל גם הקול שלכם. מותר וחשוב להגיד כשמשהו לא הוגן."]
+      ]},
+    { hate: "מי שאוהד את הקבוצה השנייה הוא אפס. לא מגיע לו לדבר פה.",
+      opts: [
+        ["אין לי דעה על זה.","mid","אבל יש לכם דעה! לא צריך להסתיר אותה כדי להיות מכבדים."],
+        ["כל האוהדים שלהם הם חבורת אפסים.","bad","הכללה מעליבה על קבוצה שלמה. זו בדיוק דה-לגיטימציה."],
+        ["אני לא מבין איך אפשר לאהוד אותם, אבל בוא תסביר לי.","good","מצוין. נשארתם עם הדעה, ובמקום לסגור את הוויכוח פתחתם אותו."]
+      ]}
+  ],
+  rephraseOld: [
+    { hate: "מי שתומך בהסכם הזה הוא בוגד ששונא את המדינה.",
+      model: "אני מתנגד להסכם, כי לדעתי הוא מסכן את ביטחון המדינה. אשמח לשמוע איך התומכים עונים על החשש הזה." },
+    { hate: "המפגינים האלה הם אויבי העם. צריך לסלק אותם מהרחובות.",
+      model: "אני לא מסכים עם המטרה של המפגינים, אבל זכותם להפגין. אני אצא להפגנה משלי ואציג את העמדה שלי." }
+  ],
+  labels: ["בוגד","אויב","שונא","מטומטם","אפס","לסלק","טיפש","נאצי","רוצח","חלאה","זבל","מוות","לחסל","נלמד","אידיוט","דפוק"],
+  ladder: [
+    ["לעג","צוחקים על הדרך שבה הוא מדבר או נראה","קריקטורות ובדיחות על רבין","צוחקים עליו"],
+    ["השפלה","מעליבים אותו בפומבי, מול כולם","קריאות גנאי בהפגנות","מעליבים אותו מול כולם"],
+    ["דה-לגיטימציה","\"אין לו זכות לדבר\", \"הוא לא אחד מאיתנו\"","הכינוי \"בוגד\"","אומרים שאין לו זכות לדבר"],
+    ["דמוניזציה","הופכים אותו לאויב מסוכן, כמעט לא אנושי","תמונות במדים נאציים","מציגים אותו כשד, כרע מוחלט"],
+    ["אלימות","ממילים למעשים","4 בנובמבר 1995","פוגעים בו בגוף"]
+  ],
+  whatsapp: [
+    { msgs: [["עידו","תראו איך יואב רקד בהפסקה 😂😂 [סרטון]"],["שירה","הההה מת"],["","23 אנשים הגיבו 😂"]],
+      opts: [
+        ["שולח/ת 😂 גם","bad","הצחוק שלכם אומר לכולם שזה בסדר. ככה לעג הופך לנורמה, והקבוצה ממשיכה."],
+        ["מתעלם/ת וממשיך/ה הלאה","mid","לא הוספתם שמן למדורה, אבל גם לא עצרתם. יואב לא יודע שמישהו בצד שלו."],
+        ["כותב/ת: \"חבר'ה, די, זה לא נעים לו\"","good","קשה להיות הראשון. אבל לעיתים קרובות מספיק קול אחד כדי שאחרים יעזו להצטרף."]
+      ]},
+    { msgs: [["עידו","[תמונה ערוכה של יואב עם אוזניים של חמור]"],["רון","החמור של השכבה 🫏"],["","34 לייקים"]],
+      opts: [
+        ["עושה לייק, כולם עושים","bad","עכשיו זו כבר השפלה פומבית. כל לייק מגדיל אותה ומראה ליואב שכולם נגדו."],
+        ["כותב/ת ליואב בפרטי: \"ראיתי. אני איתך\"","good","זה משנה הרבה למי שנפגע: הוא יודע שהוא לא לבד. כדאי לשלב את זה גם עם פעולה בקבוצה."],
+        ["כותב/ת בקבוצה: \"זו כבר השפלה. תורידו את זה\"","good","אמיץ. שמתם גבול ברור בפומבי, וזה מקשה על הבאים להצטרף."]
+      ]},
+    { msgs: [["רון","הוא בכלל לא אחד מאיתנו, שיעבור בית ספר"],["עידו","מחר אחרי הלימודים נלמד אותו לקח 👊"],["שירה","אני באה"]],
+      opts: [
+        ["זה סתם דיבורים, מתעלם/ת","bad","דיבורים כאלה הם המדרגה האחרונה לפני אלימות. ככה זה נשמע גם לפני 1995: \"רק מילים\"."],
+        ["מצלם/ת מסך ומספר/ת למבוגר שסומכים עליו","good","זו לא הלשנה. זו הגנה על מישהו שעלול להיפגע מחר. זה בדיוק הרגע לערב מבוגר."],
+        ["כותב/ת בקבוצה: \"אם תיגעו בו, אני מדווח/ת\"","mid","אמיץ, וזה יכול לעצור אותם. אבל איום אמיתי צריך גם מבוגר. כדאי לעשות את שני הדברים."]
+      ]}
+  ],
+  dilemmas: [
+    { id: "d1", text: "משתמש ברשת כותב שוב ושוב שקבוצה מסוימת באוכלוסייה \"מסוכנת לחברה\". הוא לא קורא לאלימות. האם הרשת החברתית צריכה לחסום אותו?",
+      opts: [["a","כן, לחסום"],["b","לא, זה חופש ביטוי"],["c","להוסיף אזהרה בלי לחסום"]],
+      note: "כאן מתנגשים חופש הביטוי והזכות לכבוד. מבחן \"ודאות קרובה\" שואל: האם יש סיכוי ממשי שהדברים יובילו לפגיעה? ומה אם החסימה תגרום לו להרגיש שמשתיקים אותו, ותקצין אותו עוד יותר?" },
+    { id: "d2", text: "אמן סאטירה מצייר ראש ממשלה במדים נאציים, כדי למחות על המדיניות שלו. האם זה לגיטימי?",
+      opts: [["a","כן, זו סאטירה"],["b","לא, זו דמוניזציה"],["c","תלוי בהקשר ובתקופה"]],
+      note: "סאטירה מוגנת בחופש הביטוי, והיא חלק חשוב מדמוקרטיה. אבל ב-1995 תמונות בדיוק כאלה היו חלק מההסתה נגד רבין. האם הכוונה של היוצר משנה את ההשפעה על הקהל?" },
+    { id: "d3", text: "תלמיד מעלה פוסט חריף נגד מנהל בית הספר. יש בו ביקורת אמיתית, אבל גם עלבונות אישיים. האם בית הספר צריך להעניש אותו?",
+      opts: [["a","כן"],["b","לא"],["c","רק על העלבונות, לא על הביקורת"]],
+      note: "האם אפשר להפריד בין ביקורת לגיטימית לבין העלבון שהיא עטופה בו? ומה המסר לשאר התלמידים, אם יענישו או אם לא?" }
+  ]
+};
+const LABEL = {ok:"ביקורת", bad:"הסתה", mid:"תלוי בהקשר"};
+const TAG = {ok:"t-ok", bad:"t-bad", mid:"t-mid"};
+let level = "young";
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+
+function show(n){
+  document.querySelectorAll("section").forEach(s => s.hidden = true);
+  const id = n === 0 ? "s-start" : n === 5 ? (level === "young" ? "s-5y" : "s-5o") : "s-" + n;
+  $(id).hidden = false;
+  $("progress").hidden = n === 0;
+  [...$("progress").children].forEach((sp,i) => sp.classList.toggle("on", i < n));
+  window.scrollTo(0,0);
+  ({1:startQ1, 2:startSort, 3:startRephrase, 4:startLadder, 5: level === "young" ? startWA : startDilemmas})[n]?.();
+}
+document.querySelectorAll("[data-level]").forEach(b => b.onclick = () => { level = b.dataset.level; show(1); });
+document.querySelectorAll("[data-next]").forEach(b => b.onclick = () => show(+b.dataset.next));
+
+/* בחירה עם משוב – משמש בכמה תחנות */
+function choiceBlock(box, fbBox, opts, onDone){
+  box.innerHTML = ""; fbBox.hidden = true;
+  opts.forEach(([text, kind, why]) => {
+    const b = el("button", null, text);
+    b.onclick = () => {
+      [...box.children].forEach(x => x.disabled = true);
+      b.classList.add("picked-" + kind); b.disabled = false;
+      fbBox.className = "feedback " + kind;
+      fbBox.innerHTML = ""; fbBox.append(el("b", null, kind === "good" ? "בחירה טובה." : kind === "mid" ? "כמעט." : "שווה לחשוב שוב."), el("span", null, why));
+      fbBox.hidden = false; onDone && onDone(kind);
+    };
+    box.append(b);
+  });
+}
+
+/* 1 */
+function startQ1(){
+  $("timeline").innerHTML = "";
+  DATA.timeline[level].forEach(([d,t,key]) => {
+    const li = el("li", key ? "key" : null); li.append(el("div","date",d), el("p",null,t)); $("timeline").append(li);
+  });
+  const q = DATA.q1[level]; $("q1-text").textContent = q.q; $("q1-next").hidden = true;
+  choiceBlock($("q1"), $("q1-fb"), q.opts, () => $("q1-next").hidden = false);
+}
+
+/* 2 */
+let si = 0, score = 0;
+function startSort(){ si = 0; score = 0; $("sort-end").hidden = true; $("bins").hidden = false; renderSort(); }
+function renderSort(){
+  const list = DATA.sort[level];
+  $("sort-count").textContent = `משפט ${si+1} מתוך ${list.length}`;
+  $("statement").textContent = list[si][0];
+  $("bins").hidden = false; $("sort-fb").hidden = true; $("sort-next").hidden = true;
+}
+document.querySelectorAll("[data-bin]").forEach(b => b.onclick = () => {
+  const [, ans, why] = DATA.sort[level][si];
+  const right = b.dataset.bin === ans; if (right) score++;
+  const fb = $("sort-fb"); fb.className = "feedback " + (right ? "good" : "bad"); fb.innerHTML = "";
+  const head = el("b", null, right ? "נכון." : "לא בדיוק. התשובה:"); head.append(" ", el("span", "tag " + TAG[ans], LABEL[ans]));
+  fb.append(head, el("span", null, why));
+  fb.hidden = false; $("bins").hidden = true; $("sort-next").hidden = false;
+});
+$("sort-next").onclick = () => {
+  const list = DATA.sort[level];
+  if (++si < list.length) return renderSort();
+  $("sort-count").textContent = ""; $("statement").textContent = "סיימתם את המיון.";
+  $("sort-fb").hidden = true; $("sort-next").hidden = true; $("bins").hidden = true;
+  $("sort-score").textContent = `מיינתם נכון ${score} מתוך ${list.length}. לא כל משפט חריף הוא הסתה, ולא כל הסתה נשמעת צועקת.`;
+  $("concept").hidden = level !== "old";
+  $("sort-end").hidden = false;
+};
+
+/* 3 */
+let ri = 0;
+function startRephrase(){ ri = 0; renderRephrase(); }
+function renderRephrase(){
+  const young = level === "young", list = young ? DATA.rephraseYoung : DATA.rephraseOld, item = list[ri];
+  $("rp-young").hidden = !young; $("rp-old").hidden = young; $("rp-next").hidden = true;
+  $("rp-count").textContent = `משפט ${ri+1} מתוך ${list.length}`;
+  $("rp-hate").textContent = item.hate;
+  $("rp-next").textContent = ri + 1 < list.length ? "למשפט הבא" : "לתחנה הבאה";
+  if (young){
+    choiceBlock($("rp-choices"), $("rp-fb"), item.opts, () => $("rp-next").hidden = false);
+  } else {
+    $("rp-text").value = ""; $("rp-text").disabled = false; $("rp-check").hidden = false;
+    $("rp-self").hidden = true; $("rp-warn").hidden = true;
+    ["c1","c2","c3"].forEach(id => $(id).checked = false);
+    $("rp-model").textContent = " " + item.model;
+  }
+}
+$("rp-check").onclick = () => {
+  const t = $("rp-text").value.trim(), w = $("rp-warn");
+  if (t.length < 12){ w.textContent = "כתבו משפט מלא, עם הדעה שלכם ונימוק."; w.hidden = false; return; }
+  const found = DATA.labels.filter(l => t.includes(l));
+  if (found.length){ w.textContent = `יש בניסוח עדיין מילה שמתייגת או מאיימת: "${found[0]}". נסו בלעדיה.`; w.hidden = false; return; }
+  w.hidden = true; $("rp-text").disabled = true; $("rp-check").hidden = true; $("rp-self").hidden = false; $("rp-next").hidden = false;
+};
+$("rp-next").onclick = () => {
+  const list = level === "young" ? DATA.rephraseYoung : DATA.rephraseOld;
+  if (++ri < list.length) { renderRephrase(); window.scrollTo(0,0); } else show(4);
+};
+
+/* 4 */
+let li = 0;
+function startLadder(){
+  li = 0; $("ladder").innerHTML = ""; $("pool").innerHTML = ""; $("ladder-end").hidden = true;
+  $("glossary").hidden = level !== "young";
+  const order = DATA.ladder.map((_,i) => i).sort(() => Math.random() - .5);
+  order.forEach(i => {
+    const b = el("button", null, DATA.ladder[i][0]);
+    if (level === "young") b.append(el("small", null, DATA.ladder[i][3]));
+    b.onclick = () => {
+      if (i !== li){ b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake"); return; }
+      b.remove();
+      const [name, desc, ex] = DATA.ladder[i];
+      const r = el("div","rung"), body = el("div");
+      body.append(el("b", null, name), el("small", null, desc));
+      if (level === "old") body.append(el("small", null, "ב-1995: " + ex));
+      r.append(el("span","n", String(i+1)), body); $("ladder").append(r);
+      if (++li === DATA.ladder.length) $("ladder-end").hidden = false;
+    };
+    $("pool").append(b);
+  });
+}
+
+/* 5 ז'-ח' */
+let wi = 0;
+function startWA(){ wi = 0; $("chat").innerHTML = ""; $("wa-end").hidden = true; renderWA(); }
+function renderWA(){
+  const step = DATA.whatsapp[wi];
+  step.msgs.forEach(([who, text]) => {
+    const b = el("div", who ? "bubble" : "bubble sys");
+    if (who) b.append(el("span", "who", who)); b.append(el("span", null, text)); $("chat").append(b);
+  });
+  $("wa-next").hidden = true; $("wa-choices").hidden = false;
+  choiceBlock($("wa-choices"), $("wa-fb"), step.opts, kind => {
+    const picked = [...$("wa-choices").children].find(x => !x.disabled);
+    const me = el("div", "bubble me"); me.append(el("span", null, picked.textContent)); $("chat").append(me);
+    $("wa-next").hidden = false;
+  });
+}
+$("wa-next").onclick = () => {
+  if (++wi < DATA.whatsapp.length){ renderWA(); $("chat").lastElementChild?.scrollIntoView({block:"nearest"}); window.scrollTo(0,0); return; }
+  $("wa-choices").hidden = true; $("wa-fb").hidden = true; $("wa-next").hidden = true; $("wa-end").hidden = false;
+};
+
+/* 5 ט'-יב' – דילמות עם תוצאות בית הספר */
+let di = 0;
+function startDilemmas(){ di = 0; $("dl-end").hidden = true; renderDilemma(); }
+function renderDilemma(){
+  const d = DATA.dilemmas[di];
+  $("dl-count").textContent = `דילמה ${di+1} מתוך ${DATA.dilemmas.length}`;
+  $("dl-text").textContent = d.text; $("dl-res").hidden = true; $("dl-next").hidden = true;
+  const box = $("dl-choices"); box.innerHTML = ""; box.hidden = false;
+  const votes = store.get("rabin-votes", {});
+  d.opts.forEach(([k, label]) => {
+    const b = el("button", null, label);
+    b.onclick = () => vote(d, k, b);
+    box.append(b);
+  });
+  if (votes[d.id]) showResults(d, votes[d.id], false);
+}
+async function vote(d, k, btn){
+  [...$("dl-choices").children].forEach(x => x.disabled = true); btn.classList.add("picked"); btn.disabled = false;
+  const votes = store.get("rabin-votes", {}); votes[d.id] = k; store.set("rabin-votes", votes);
+  try { await submitRaw(`#${d.id}=${k}`); } catch(e){}
+  setTimeout(() => showResults(d, k, true), 1500);
+}
+async function showResults(d, mine, fresh){
+  [...$("dl-choices").children].forEach((x, i) => { x.disabled = true; if (d.opts[i][0] === mine) x.classList.add("picked"), x.disabled = false; });
+  $("dl-res").hidden = false; $("dl-note").textContent = d.note; $("dl-next").hidden = false;
+  $("dl-bars").innerHTML = ""; $("dl-n").textContent = "טוען תוצאות…";
+  let counts = Object.fromEntries(d.opts.map(([k]) => [k, 0]));
+  let ok = false;
+  try {
+    const rows = await readSheet();
+    rows.forEach(v => { const m = /^#(d\d)=([abc])$/.exec((v || "").trim()); if (m && m[1] === d.id && m[2] in counts) counts[m[2]]++; });
+    ok = true;
+  } catch(e){}
+  if (counts[mine] === 0) counts[mine] = 1;
+  const total = Object.values(counts).reduce((a,b) => a+b, 0);
+  d.opts.forEach(([k, label]) => {
+    const pct = Math.round(100 * counts[k] / total);
+    const bar = el("div", "bar" + (k === mine ? " mine" : "")), lbl = el("div", "lbl"), tr = el("div", "track"), f = el("div", "fill");
+    lbl.append(el("span", null, label + (k === mine ? " (הבחירה שלכם)" : "")), el("b", null, pct + "%"));
+    f.style.width = "0%"; tr.append(f); bar.append(lbl, tr); $("dl-bars").append(bar);
+    requestAnimationFrame(() => requestAnimationFrame(() => f.style.width = pct + "%"));
+  });
+  $("dl-res-title").textContent = ok ? "כך ענו עד עכשיו תלמידי בית הספר:" : "לא הצלחנו לטעון את תוצאות בית הספר. הנה הבחירה שלכם:";
+  $("dl-n").textContent = ok ? (total === 1 ? "את/ה הראשון/ה שענה על הדילמה הזאת." : `${total} תלמידים ענו על הדילמה הזאת.`) : "";
+  $("dl-next").textContent = di + 1 < DATA.dilemmas.length ? "לדילמה הבאה" : "סיכום";
+}
+$("dl-next").onclick = () => {
+  if (++di < DATA.dilemmas.length){ renderDilemma(); window.scrollTo(0,0); return; }
+  $("dl-choices").hidden = true; $("dl-res").hidden = true; $("dl-next").hidden = true;
+  $("dl-count").textContent = ""; $("dl-text").textContent = "סיימתם את הדילמות.";
+  $("dl-end").hidden = false;
+};
+
+/* שליחה וקריאה מהגיליון */
+async function submitRaw(value){
+  if (!CONFIG.FORM_ID || !CONFIG.ENTRY_ID){ const d = store.get("rabin-demo", []); d.push(value); store.set("rabin-demo", d); return; }
+  const body = new URLSearchParams(); body.append(CONFIG.ENTRY_ID, value);
+  await fetch(`https://docs.google.com/forms/d/e/${CONFIG.FORM_ID}/formResponse`, {method:"POST", mode:"no-cors", body});
+}
+function parseCSV(t){
+  const rows = []; let row = [], cur = "", q = false;
+  for (let i = 0; i < t.length; i++){
+    const c = t[i];
+    if (q){ if (c === '"'){ if (t[i+1] === '"'){ cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === ","){ row.push(cur); cur = ""; }
+    else if (c === "\n"){ row.push(cur); rows.push(row); row = []; cur = ""; }
+    else if (c !== "\r") cur += c;
+  }
+  if (cur || row.length){ row.push(cur); rows.push(row); }
+  return rows;
+}
+async function readSheet(){
+  if (!CONFIG.SHEET_ID) return store.get("rabin-demo", []);
+  const res = await fetch(`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&t=${Date.now()}`, {cache:"no-store"});
+  if (!res.ok) throw new Error(res.status);
+  return parseCSV(await res.text()).slice(1).map(r => r[r.length - 1]);
+}
+
+/* 6 */
+const MAX = 2;
+function renderSent(){
+  const a = store.get("rabin-sent", []); $("sent").innerHTML = "";
+  a.forEach(w => $("sent").append(el("span", null, w)));
+  const full = a.length >= MAX;
+  $("word").disabled = full; $("send").disabled = full; $("done").hidden = a.length === 0;
+  if (full) { $("msg").className = "msg okm"; $("msg").textContent = "שלחתם את שתי המילים שלכם."; }
+}
+$("send").onclick = async () => {
+  const res = WordFilter.check($("word").value), m = $("msg");
+  if (!res.ok){ m.className = "msg err"; m.textContent = res.reason; return; }
+  if (store.get("rabin-sent", []).length >= MAX) return;
+  $("send").disabled = true; m.className = "msg"; m.textContent = "שולחים…";
+  try {
+    await submitRaw(res.word);
+    const a = store.get("rabin-sent", []); a.push(res.word); store.set("rabin-sent", a);
+    $("word").value = ""; m.className = "msg okm"; m.textContent = "נשלח!";
+  } catch(e){ m.className = "msg err"; m.textContent = "השליחה נכשלה. בדקו שיש אינטרנט ונסו שוב."; }
+  $("send").disabled = false; renderSent();
+};
+$("word").addEventListener("keydown", e => { if (e.key === "Enter") $("send").click(); });
+renderSent();
+</script>
+</body>
+</html>

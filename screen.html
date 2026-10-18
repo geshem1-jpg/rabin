@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ענן המילים · יום רבין</title>
+<script>
+/* ===================== הגדרות – למלא לפני יום הפעילות ===================== */
+const CONFIG = {
+  SHEET_ID: "1mlvAorshJpgisejM8m1bh2NZOSx269w5PqELMjCPWr4",        // המזהה מקישור הגיליון: בין /d/ לבין /edit. ריק = מצב ניסיון
+  STUDENT_URL: "",     // ריק = מחושב אוטומטית (index.html באותה תיקייה)
+  REFRESH_SECONDS: 6,
+  MAX_WORDS: 70
+};
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Assistant:wght@400;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="filter.js"></script>
+<style>
+/* Projector screen: night-navy field, words glow like candlelight; QR panel at the side. */
+:root{
+  --night:#0f1424; --panel:#171e33; --line:#2a3352; --text:#eceae4; --muted:#9aa3b8;
+  --flame:#f0a64a; --flame2:#f6c98a; --cool:#b7c6ee; --cool2:#8fa3d9;
+  --display:"Frank Ruhl Libre","David",Georgia,serif; --body:"Assistant",Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(ellipse at 50% 55%,#18213d 0%,var(--night) 70%);color:var(--text);font-family:var(--body);
+  display:grid;grid-template-columns:1fr minmax(220px,22vw);overflow:hidden}
+.stage{display:flex;flex-direction:column;padding:3vh 3vw 2vh;min-width:0}
+header .eyebrow{color:var(--flame);font-weight:700;letter-spacing:.06em;font-size:clamp(14px,1.3vw,22px)}
+header h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,3.6vw,64px);margin:.2em 0 0;line-height:1.1;text-wrap:balance}
+#cloud{position:relative;flex:1;margin-top:2vh}
+#cloud span{position:absolute;white-space:nowrap;font-family:var(--display);font-weight:700;line-height:1;
+  transition:left .8s ease,top .8s ease,font-size .8s ease,opacity .8s ease}
+#cloud span.new{animation:glow 2.4s ease}
+@keyframes glow{0%{opacity:0;text-shadow:0 0 40px var(--flame)}40%{opacity:1;text-shadow:0 0 30px var(--flame)}100%{text-shadow:none}}
+.empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:clamp(18px,2vw,32px);text-align:center}
+aside{background:var(--panel);border-inline-start:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vh;padding:3vh 1.5vw;text-align:center}
+aside h2{font-family:var(--display);font-size:clamp(20px,1.9vw,34px);margin:0}
+#qr{background:#fff;padding:12px;border-radius:12px;width:min(17vw,30vh);aspect-ratio:1}
+#qr img,#qr canvas{width:100%!important;height:auto!important;display:block}
+.url{font-size:clamp(11px,.85vw,15px);color:var(--muted);word-break:break-all;direction:ltr}
+.stat{font-size:clamp(14px,1.2vw,20px);color:var(--muted)}
+.stat b{color:var(--text);font-variant-numeric:tabular-nums;font-size:1.4em}
+.tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.tools button{font:inherit;font-size:13px;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tools button:hover{color:var(--text)}
+.demo{color:var(--flame2);font-size:13px}
+@media (prefers-reduced-motion:reduce){#cloud span{transition:none}#cloud span.new{animation:none}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <header>
+    <div class="eyebrow">מותר לחלוק, אסור להסית · יום הזיכרון ליצחק רבין</div>
+    <h1>מה צריך כדי שנוכל להתווכח בלי לשנוא?</h1>
+  </header>
+  <div id="cloud"><div class="empty" id="empty">המילים הראשונות יופיעו כאן בקרוב…</div></div>
+</div>
+<aside>
+  <h2>סרקו והצטרפו</h2>
+  <div id="qr"></div>
+  <div class="url" id="url"></div>
+  <div class="stat"><b id="count">0</b> מילים נשלחו</div>
+  <div class="demo" id="demo" hidden>מצב ניסיון: לא מחובר לגיליון</div>
+  <div class="tools"><button id="fs">מסך מלא</button><button id="refresh">רענון</button></div>
+</aside>
+
+<script>
+const $ = id => document.getElementById(id);
+const studentUrl = CONFIG.STUDENT_URL || new URL("index.html", location.href).href;
+$("url").textContent = studentUrl.replace(/^https?:\/\//, "");
+try { new QRCode($("qr"), {text: studentUrl, width: 512, height: 512, correctLevel: QRCode.CorrectLevel.M}); } catch(e){}
+
+$("fs").onclick = () => { (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(()=>{}); };
+
+const DEMO = ["הקשבה","כבוד","סבלנות","הקשבה","אמפתיה","כבוד","הקשבה","סובלנות","לנשום עמוק","כבוד הדדי","פתיחות","הקשבה","כבוד","אמון","סקרנות","חמלה","סבלנות","ענווה","לשאול שאלות","ריסון","שיח","כבוד"];
+
+function parseCSV(t){
+  const rows = []; let row = [], cur = "", q = false;
+  for (let i = 0; i < t.length; i++){
+    const c = t[i];
+    if (q){ if (c === '"'){ if (t[i+1] === '"'){ cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === ","){ row.push(cur); cur = ""; }
+    else if (c === "\n"){ row.push(cur); rows.push(row); row = []; cur = ""; }
+    else if (c !== "\r") cur += c;
+  }
+  if (cur || row.length){ row.push(cur); rows.push(row); }
+  return rows;
+}
+
+async function loadWords(){
+  if (!CONFIG.SHEET_ID){
+    $("demo").hidden = false;
+    let local = []; try { local = JSON.parse(localStorage.getItem("rabin-demo") || "[]"); } catch(e){}
+    return DEMO.concat(local);
+  }
+  const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&t=${Date.now()}`;
+  const res = await fetch(url, {cache:"no-store"});
+  if (!res.ok) throw new Error(res.status);
+  const rows = parseCSV(await res.text()).slice(1);
+  return rows.map(r => r[r.length - 1]); // העמודה האחרונה = המילה
+}
+
+function count(words){
+  const m = new Map();
+  for (const raw of words){
+    const r = WordFilter.check(raw); if (!r.ok) continue;
+    m.set(r.word, (m.get(r.word) || 0) + 1);
+  }
+  return [...m.entries()].sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0], "he")).slice(0, CONFIG.MAX_WORDS);
+}
+
+const COLORS = ["var(--flame)","var(--text)","var(--cool)","var(--flame2)","var(--cool2)","var(--text)"];
+const placed = new Map(); // word -> span
+let lastKey = "";
+
+function layout(entries){
+  const box = $("cloud"); const W = box.clientWidth, H = box.clientHeight;
+  $("empty").hidden = entries.length > 0;
+  const max = entries.length ? entries[0][1] : 1, min = entries.length ? entries[entries.length-1][1] : 1;
+  const big = Math.min(H / 4.2, W / 7), small = Math.max(18, Math.min(H, W) / 26);
+  const rects = []; const keep = new Set();
+  entries.forEach(([w, n], i) => {
+    keep.add(w);
+    let s = placed.get(w), isNew = false;
+    if (!s){ s = document.createElement("span"); s.textContent = w; s.style.opacity = "0"; box.append(s); placed.set(w, s); isNew = true; }
+    const t = max === min ? .6 : Math.sqrt((n - min) / (max - min));
+    let size = small + (big - small) * t;
+    s.style.color = i === 0 ? "var(--flame)" : COLORS[(w.length + i) % COLORS.length];
+    let ok = false;
+    for (let attempt = 0; attempt < 4 && !ok; attempt++){
+      s.style.transition = "none"; s.style.fontSize = size + "px";
+      const bw = s.offsetWidth + 14, bh = s.offsetHeight + 6;
+      for (let k = 0; k < 2200; k++){
+        const a = k * 0.35, r = 2.2 * a;
+        const x = W/2 + r * Math.cos(a) * (W/H) * 0.75 - bw/2, y = H/2 + r * Math.sin(a) - bh/2;
+        if (x < 0 || y < 0 || x + bw > W || y + bh > H) continue;
+        if (rects.some(q => x < q.x + q.w && x + bw > q.x && y < q.y + q.h && y + bh > q.y)) continue;
+        rects.push({x, y, w:bw, h:bh}); s.dataset.x = x + 7; s.dataset.y = y + 3; ok = true; break;
+      }
+      size *= .8;
+    }
+    s.style.transition = "";
+    if (!ok){ s.style.opacity = "0"; return; }
+    if (isNew){ s.style.left = s.dataset.x + "px"; s.style.top = s.dataset.y + "px"; void s.offsetWidth; s.classList.add("new"); }
+    else { s.style.left = s.dataset.x + "px"; s.style.top = s.dataset.y + "px"; }
+    s.style.opacity = "1";
+  });
+  for (const [w, s] of placed) if (!keep.has(w)){ s.remove(); placed.delete(w); }
+}
+
+let total = 0, current = [];
+async function tick(){
+  try {
+    const words = await loadWords();
+    const entries = count(words);
+    total = entries.reduce((a, e) => a + e[1], 0);
+    $("count").textContent = total;
+    const key = JSON.stringify(entries);
+    if (key !== lastKey){ lastKey = key; current = entries; layout(entries); }
+  } catch(e){ console.warn("טעינה נכשלה", e); }
+}
+$("refresh").onclick = () => { lastKey = ""; tick(); };
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => layout(current), 250); });
+document.fonts.ready.then(tick);
+setInterval(tick, CONFIG.REFRESH_SECONDS * 1000);
+</script>
+</body>
+</html>
